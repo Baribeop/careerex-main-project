@@ -9,15 +9,15 @@ const userdetail = new mongoose.Schema({
     lastName: {type: String, required: true},
     password: {type: String, required: true}, 
     email: {type: String, required: true},
-    role: {type: String, default: "user"}
+    role: {type: String, default: "student"}
 
 }, {timestamps: true})
 
 
 const course = new mongoose.Schema({
 
-    courseTitle : {type: String, rquired: false},
-    courseDiscription : {type: String, required: true},
+    courseTitle : {type: String, required: false},
+    courseDescription : {type: String, required: true},
     courseInstructor : {type: String, required: true},
     courseLevel : {type: [String, Number], required: false},
 

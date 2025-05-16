@@ -152,19 +152,20 @@ app.post("/login", async (req, res) => {
 
 //  Create course for instructors
 app.post("/create-course/:id", async (req, res) =>{
+
     try{
 
         const {id} = req.params
 
-        const {courseTitle , courseDiscription, courseInstructor,  courseLevel } = req.body
+        const {courseTitle , courseDescription, courseInstructor,  courseLevel } = req.body
+
         if (!courseTitle) {
             return res.status(400).json({message: "Please enter course title"})
         }
 
-        if (!courseDiscription) {
+        if (!courseDescription) {
             return res.status(400).json({message: "Please enter course description"})
         }
-
 
         if (!courseInstructor) {
             return res.status(400).json({message: "Please enter your name"})
@@ -178,23 +179,23 @@ app.post("/create-course/:id", async (req, res) =>{
             })
         }
 
-        if (registeredUser.role == "student") {
+        if (registeredUser.role !== "student") {
 
-            const newcourse = new Course({
-                courseTitle,
-                 courseDiscription, 
-                 courseInstructor,  
-                 courseLevel 
+            res.status(400).json({
+                message: "Only instructors can create course"
             })
-
-
-            await newcourse.save()
         }
 
-        res.status(400).json({
-            message: "Only instructors can create course"
+       
+        const newcourse = new Course({
+            courseTitle,
+            courseDescription, 
+             courseInstructor,  
+             courseLevel 
         })
 
+
+        await newcourse.save()
         
 
 
