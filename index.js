@@ -193,11 +193,13 @@ app.post("/create-course/:id", async (req, res) =>{
              courseInstructor,  
              courseLevel 
         })
-
-
         await newcourse.save()
-        
 
+        return res.status(200).json({
+            message: "Course created succesfully", 
+            newcourse
+        })
+        
 
     } catch (error) {
         res.status(400).json({message: error.message})
