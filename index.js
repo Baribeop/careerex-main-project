@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 const dotenv = require("dotenv")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const {User, Course} = require("./eduModel")
+const {User, Course, Enrollment} = require("./eduModel")
 
 dotenv.config()
 
@@ -187,6 +187,7 @@ app.post("/create-course/:id", async (req, res) =>{
         }
        
         const newcourse = new Course({
+            instructorId : id, 
             courseTitle,
             courseDescription, 
              courseInstructor,  
@@ -198,7 +199,6 @@ app.post("/create-course/:id", async (req, res) =>{
             message: "Course created succesfully", 
             newcourse
         })
-        
 
     } catch (error) {
         res.status(400).json({message: error.message})
@@ -207,3 +207,96 @@ app.post("/create-course/:id", async (req, res) =>{
 
 
 
+app.post("/enroll", async(req, res) =>{
+
+    try {
+
+        const {studentId, courseId, enrollmentDate} = req.body
+
+        if (!studentId){return res.status(400).json({message: "Invalid user id"})}
+
+        if (!courseId){return res.status(400).json({message: "Course is not available"})}
+
+        const selectedCourse = await Course.findById(courseId)
+        console.log(selectedCourse)
+
+        let formatedDate = undefined
+
+        if (enrollmentDate){formatedDate = new Date(enrollmentDate)}
+    
+    
+        let existingEnrollment = await Enrollment.findOne({studentId: studentId})
+
+        if (existingEnrollment){
+            if (!existingEnrollment.enrolledCourseList.includes(courseId)){
+                existingEnrollment.enrolledCourseList.push(courseId)
+                await existingEnrollment.save()
+
+            } else {
+                 existingEnrollment = new Enrollment({
+                    studentId: studentId,
+                    enrolledCourseList: [courseId],
+                    enrollmentDate : formatedDate
+                 })
+                 await existingEnrollment.save()
+            }
+        }
+       console.log(existingEnrollment)
+
+        return res.status(200).json({message : "Successfully enrolled", existingEnrollment})
+
+    } catch (error) {
+        res.status(400).json({message : error.message})
+
+    }
+
+})
+
+
+// Get all available courses - for testing
+app.get("/all-courses", async(req, res) =>{
+
+    const availableCourses = await Course.find()
+    return res.status(200).json({message: "success", availableCourses})
+})
+
+
+// insrtuctor get students enrolled for their course(s)
+app.get("/enrolled-students", async(req, res) =>{
+
+    const {instructorId} = req.body
+    if (!instructorId) {
+        return res.status(400).json({message: "Invalid id"})
+    }
+
+    const enrolledCourses = await Enrollment.find()
+
+    const courseList = await Course.find()
+
+
+    const  instructorCourses =  courseList.filter(course => {
+
+        if (course.instructorId == instructorId){
+
+            
+            // const instructorEnrolledStudents = enrolledCourses.forEach(each => {
+            //     if (each.enrolledCourseList.)
+                
+            // });
+
+
+        }
+
+        // res.status(200).json({message: "success", enrollment})
+
+        // if (each.instructorId == instructorId){
+
+        //     res.status(200).json({message: "success", each})
+        // }
+
+    }
+    ) 
+    // console.log(enrollmentlist)
+    res.status(400).json({messge: "succes", instructorCourses})
+
+})

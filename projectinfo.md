@@ -1,43 +1,4 @@
-Logout
-Toggle Sidebar
-Search
-Notification icon
-Profile Image
-Baribeop Leele
 
-Mark Attendance
-Welcome Baribeop
-Always stay updated in your student portal
-
-Class: Backend
-Student ID: CX/AXC/BTD/02/1703
-Close image
-New Assignment
-5/15/2025
-Milestone 1: Project 5 - Sports Betting Platform (BetWise)
-Assigned
-
-Milestone 1: User Setup & Game Management
-
-
-
-1.Register/login users with wallet balance.
-
-
-
-2.Admin can create games with odds.
-
-
-
-3.Define User, Game schemas.
-
-
-
-view comments
-Profile Image
-Add a class comment
-Profile Image
-New Assignment
 5/15/2025
 Milestone 1: Project 4 - E-Learning Platform Backend (EduCore)
 Assigned
@@ -56,6 +17,19 @@ Milestone 1: Authentication & Courses
 
 3.Setup schemas: User, Course.
 
+
+MILESTONE 2 - PROJECT 4: E-Learning Platform Backend (EduCore)
+Due Date: 23 May 202
+Assignment Instructions
+Assigned
+
+Milestone 2: Enrollment Logic
+
+1.Students can enroll in available courses.
+
+2.Create Enrollment schema.
+
+3.Instructors can view enrolled students.
 
 
 Backend where instructors manage courses and students enroll. 
