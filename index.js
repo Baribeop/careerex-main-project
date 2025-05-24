@@ -213,19 +213,19 @@ app.post("/enroll", async(req, res) =>{
 
         const {studentId, courseId, enrollmentDate} = req.body
 
-        if (!studentId){return res.status(400).json({message: "Invalid user id"})}
+        if (!studentId){return res.status(400).json({message: "user id is not provided"})}
 
-        if (!courseId){return res.status(400).json({message: "Course is not available"})}
+        if (!courseId){return res.status(400).json({message: "Course is not provided"})}
 
         const selectedCourse = await Course.findById(courseId)
-        console.log(selectedCourse)
+        // console.log(selectedCourse)
 
         let formatedDate = undefined
 
         if (enrollmentDate){formatedDate = new Date(enrollmentDate)}
     
     
-        let existingEnrollment = await Enrollment.findOne({studentId: studentId})
+        let existingEnrollment = await Enrollment.findOne({studentId})
 
         if (existingEnrollment){
             if (!existingEnrollment.enrolledCourseList.includes(courseId)){
@@ -233,17 +233,19 @@ app.post("/enroll", async(req, res) =>{
                 await existingEnrollment.save()
 
             } else {
-                 existingEnrollment = new Enrollment({
-                    studentId: studentId,
-                    enrolledCourseList: [courseId],
-                    enrollmentDate : formatedDate
-                 })
-                 await existingEnrollment.save()
-            }
-        }
-       console.log(existingEnrollment)
+                return res.status(200).json({ message: "Already enrolled in this course", existingEnrollment });
+           
+            }  
+        } else {
+            existingEnrollment = new Enrollment({
+               studentId: studentId,
+               enrolledCourseList: [courseId],
+               enrollmentDate : formatedDate
+            })
+            await existingEnrollment.save()
+            console.log(existingEnrollment)
 
-        return res.status(200).json({message : "Successfully enrolled", existingEnrollment})
+            return res.status(200).json({message : "Successfully enrolled", existingEnrollment})}
 
     } catch (error) {
         res.status(400).json({message : error.message})
@@ -261,42 +263,91 @@ app.get("/all-courses", async(req, res) =>{
 })
 
 
+// Get all enrolled coursess - for testing
+app.get("/enrolled-courses", async(req, res) =>{
+
+    const enrolledCourses = await Enrollment.find()
+    return res.status(200).json({message: "success", enrolledCourses})
+})
+
+
+
+
+
+
 // insrtuctor get students enrolled for their course(s)
 app.get("/enrolled-students", async(req, res) =>{
 
-    const {instructorId} = req.body
-    if (!instructorId) {
-        return res.status(400).json({message: "Invalid id"})
-    }
 
-    const enrolledCourses = await Enrollment.find()
-
-    const courseList = await Course.find()
-
-
-    const  instructorCourses =  courseList.filter(course => {
-
-        if (course.instructorId == instructorId){
-
-            
-            // const instructorEnrolledStudents = enrolledCourses.forEach(each => {
-            //     if (each.enrolledCourseList.)
-                
-            // });
-
-
+    try {
+        
+        const {instructorId} = req.body
+        if (!instructorId) {
+            return res.status(400).json({message: "Invalid id"})
         }
+    
+        const enrolledCourses = await Enrollment.find()
+        // console.log(enrolledCourses)
+    
+        const courseList = await Course.find({instructorId: instructorId})
+    
+        const Students = await User.find()
 
-        // res.status(200).json({message: "success", enrollment})
+        return res.status(200).json({
+                        message: "success", courseList
+                        
+                    })
 
-        // if (each.instructorId == instructorId){
+        
 
-        //     res.status(200).json({message: "success", each})
-        // }
+        // const instructorCourses =  courseList.forEach(course => {
+        //     if (course.instructorId == instructorId){
+                
+        //           return res.status(200).json({
+        //             message: "success", course
+                    
+        //         })
 
+        //     }
+
+    
+        // }) 
+      
+    
+    
+        // const instructorCourses =  courseList.filter(course => {
+    
+        //     if (course.instructorId == instructorId){
+    
+        //        return enrolledCourses.enrolledCourseList[3].forEach(courseId => {
+                    
+        //             if (courseId == instructorCourses._id){
+    
+        //                return Students.forEach(student =>{
+    
+        //                    if (student._id == enrolledCourses.studentId)
+    
+        //                     return res.status(200).json({
+        //                         message: "Success",
+        //                         enrolledStudents: student
+        //                     })
+                            
+        //                 })
+        //             }
+                    
+        //         });  
+    
+    
+        //     }
+    
+        
+    
+        // }) 
+      
+    } catch (error) {
+        return res.status(400).json({message: error.message})
+        
     }
-    ) 
-    // console.log(enrollmentlist)
-    res.status(400).json({messge: "succes", instructorCourses})
+
 
 })
