@@ -256,98 +256,54 @@ app.post("/enroll", async(req, res) =>{
 
 
 // Get all available courses - for testing
-app.get("/all-courses", async(req, res) =>{
-
-    const availableCourses = await Course.find()
-    return res.status(200).json({message: "success", availableCourses})
-})
-
-
-// Get all enrolled coursess - for testing
-app.get("/enrolled-courses", async(req, res) =>{
-
-    const enrolledCourses = await Enrollment.find()
-    return res.status(200).json({message: "success", enrolledCourses})
-})
-
-
-
-
-
-
-// insrtuctor get students enrolled for their course(s)
-app.get("/enrolled-students", async(req, res) =>{
-
-
+app.get("/enrolled-students", async (req, res) => {
     try {
-        
-        const {instructorId} = req.body
-        if (!instructorId) {
-            return res.status(400).json({message: "Invalid id"})
-        }
-    
-        const enrolledCourses = await Enrollment.find()
-        // console.log(enrolledCourses)
-    
-        const courseList = await Course.find({instructorId: instructorId})
-    
-        const Students = await User.find()
-
-        return res.status(200).json({
-                        message: "success", courseList
-                        
-                    })
-
-        
-
-        // const instructorCourses =  courseList.forEach(course => {
-        //     if (course.instructorId == instructorId){
-                
-        //           return res.status(200).json({
-        //             message: "success", course
-                    
-        //         })
-
-        //     }
-
-    
-        // }) 
-      
-    
-    
-        // const instructorCourses =  courseList.filter(course => {
-    
-        //     if (course.instructorId == instructorId){
-    
-        //        return enrolledCourses.enrolledCourseList[3].forEach(courseId => {
-                    
-        //             if (courseId == instructorCourses._id){
-    
-        //                return Students.forEach(student =>{
-    
-        //                    if (student._id == enrolledCourses.studentId)
-    
-        //                     return res.status(200).json({
-        //                         message: "Success",
-        //                         enrolledStudents: student
-        //                     })
-                            
-        //                 })
-        //             }
-                    
-        //         });  
-    
-    
-        //     }
-    
-        
-    
-        // }) 
-      
+      const { instructorId } = req.body;
+  
+      if (!instructorId) {
+        return res.status(400).json({ message: "Invalid instructor ID" });
+      }
+  
+      // Step 1: Find courses created by this instructor
+      const instructorCourses = await Course.find({ instructorId: instructorId });
+  
+      const courseIds = instructorCourses.map(course => String(course._id));
+  
+      // Step 2: Get enrollments for those courses
+      const enrolledStudents = await Enrollment.find({
+        enrolledCourseList: { $in: courseIds }
+      });
+  
+      let result = [];
+  
+      for (const enroll of enrolledStudents) {
+        const student = await User.findById(enroll.studentId);
+        const courses = await Course.find({
+          _id: { $in: enroll.enrolledCourseList }
+        });
+  
+        result.push({
+          _id: enroll._id,
+          student: {
+            _id: student._id,
+            name: `${student.firstName} ${student.lastName}`,
+            email: student.email
+          },
+          courses: courses.map(course => ({
+            _id: course._id,
+            title: course.title,
+            description: course.description
+          })),
+          courseStatus: enroll.courseStatus,
+          enrollmentDate: enroll.enrollmentDate
+        });
+      }
+  
+      // Return final result
+      return res.status(200).json({ message: "success", studentInfo: result });
+  
     } catch (error) {
-        return res.status(400).json({message: error.message})
-        
+      return res.status(400).json({ message: error.message });
     }
-
-
-})
+  });
+  
