@@ -4,7 +4,8 @@ const mongoose = require("mongoose")
 const dotenv = require("dotenv")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const {User, Course, Enrollment} = require("./eduModel")
+const {User, Course, Enrollment} = require("./models/eduModel")
+
 
 dotenv.config()
 
@@ -27,7 +28,6 @@ mongoose.connect(MONGODB_URL)
 
 
 // Get all users - for testing
-
 app.get("/all-user", async (req, res) => {
 
     const allUsers = await User.find()
@@ -38,8 +38,8 @@ app.get("/all-user", async (req, res) => {
 })
 
 
-// Register user(s)
 
+// Register user(s)
 app.post("/register", async (req, res) => {
 
     try{
@@ -117,7 +117,7 @@ app.post("/login", async (req, res) => {
         const isMatch = await bcrypt.compare(password, user?.password)
 
         if (!isMatch) {
-            return res.status(404).json({message: "Incorrect password "})
+            return res.status(404).json({message: "Incorrect email or password"})
         }
         const access_token = jwt.sign(
             {id: user?._id},
@@ -169,6 +169,10 @@ app.post("/create-course/:id", async (req, res) =>{
 
         if (!courseInstructor) {
             return res.status(400).json({message: "Please enter your name"})
+        }
+
+        if (id.length < 24){
+            return res.status(400).json({message: "Invalid id"})
         }
 
         const registeredUser = await User.findById(id)
@@ -234,8 +238,8 @@ app.post("/enroll", async(req, res) =>{
 
             } else {
                 return res.status(200).json({ message: "Already enrolled in this course", existingEnrollment });
-           
             }  
+
         } else {
             existingEnrollment = new Enrollment({
                studentId: studentId,
@@ -256,20 +260,41 @@ app.post("/enroll", async(req, res) =>{
 
 
 // Get all available courses - for testing
+app.get("/all-courses", async(req, res) =>{
+
+    const availableCourses = await Course.find()
+    return res.status(200).json({message: "success", availableCourses})
+})
+
+
+// Get all enrolled coursess - for testing
+app.get("/enrolled-courses", async(req, res) =>{
+
+    const enrolledCourses = await Enrollment.find()
+    return res.status(200).json({message: "success", enrolledCourses})
+})
+
+
+// insrtuctor get students enrolled for their course(s)
 app.get("/enrolled-students", async (req, res) => {
     try {
       const { instructorId } = req.body;
+
+    //   6830e  7c8ad b96bd e37e3 9dbf
   
       if (!instructorId) {
-        return res.status(400).json({ message: "Invalid instructor ID" });
+        return res.status(400).json({ message: "instructor id not provded" });
       }
   
-      // Step 1: Find courses created by this instructor
+      if (instructorId.length < 24){
+        return res.status(400).json({message: "invalid id"})
+      }
+      // Find courses created by the instructor
       const instructorCourses = await Course.find({ instructorId: instructorId });
   
       const courseIds = instructorCourses.map(course => String(course._id));
   
-      // Step 2: Get enrollments for those courses
+      // Get enrollments for those courses
       const enrolledStudents = await Enrollment.find({
         enrolledCourseList: { $in: courseIds }
       });
@@ -291,11 +316,12 @@ app.get("/enrolled-students", async (req, res) => {
           },
           courses: courses.map(course => ({
             _id: course._id,
-            title: course.title,
-            description: course.description
+            title: course.courseTitle,
+            description: course.courseDescription,
+            status: enroll.courseStatus,
+            date: enroll.enrollmentDate
           })),
-          courseStatus: enroll.courseStatus,
-          enrollmentDate: enroll.enrollmentDate
+       
         });
       }
   

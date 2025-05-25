@@ -1,9 +1,7 @@
 const mongoose = require("mongoose")
 
 
-
-
-const userdetail = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
 
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
@@ -14,7 +12,7 @@ const userdetail = new mongoose.Schema({
 }, {timestamps: true})
 
 
-const course = new mongoose.Schema({
+const courseSchema = new mongoose.Schema({
 
     instructorId: {type: String, required : true},
     courseTitle : {type: String, required: false},
@@ -39,8 +37,8 @@ const enrollmentSchema = new mongoose.Schema ({
 
 
 
-const User = new mongoose.model("User", userdetail)
-const Course = new mongoose.model("Course", course)
+const User = new mongoose.model("User", userSchema)
+const Course = new mongoose.model("Course", courseSchema)
 const Enrollment = new mongoose.model("Enrollment", enrollmentSchema)
 
 
