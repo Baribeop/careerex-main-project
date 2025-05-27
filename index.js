@@ -279,8 +279,6 @@ app.get("/enrolled-courses", async(req, res) =>{
 app.get("/enrolled-students", async (req, res) => {
     try {
       const { instructorId } = req.body;
-
-    //   6830e  7c8ad b96bd e37e3 9dbf
   
       if (!instructorId) {
         return res.status(400).json({ message: "instructor id not provded" });
@@ -288,6 +286,12 @@ app.get("/enrolled-students", async (req, res) => {
   
       if (instructorId.length < 24){
         return res.status(400).json({message: "invalid id"})
+      }
+
+      const user = await User.findById(instructorId)
+
+      if (user.role != 'instructor'){
+        return res.status(400).json({message: "Access denied"})
       }
       // Find courses created by the instructor
       const instructorCourses = await Course.find({ instructorId: instructorId });
