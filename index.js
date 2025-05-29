@@ -259,13 +259,6 @@ app.post("/enroll", async(req, res) =>{
 })
 
 
-// Get all available courses - for testing
-app.get("/all-courses", async(req, res) =>{
-
-    const availableCourses = await Course.find()
-    return res.status(200).json({message: "success", availableCourses})
-})
-
 
 // Get all enrolled coursess - for testing
 app.get("/enrolled-courses", async(req, res) =>{
@@ -273,7 +266,6 @@ app.get("/enrolled-courses", async(req, res) =>{
     const enrolledCourses = await Enrollment.find()
     return res.status(200).json({message: "success", enrolledCourses})
 })
-
 
 // insrtuctor get students enrolled for their course(s)
 app.get("/enrolled-students", async (req, res) => {
@@ -337,3 +329,44 @@ app.get("/enrolled-students", async (req, res) => {
     }
   });
   
+
+// Courses enrolled by a student
+  app.get("/courses/:id/student", async(req, res)=>{
+     
+    try {
+
+        const {id} = req.params
+
+        if (!id){
+            return res.status(400).json({message: "Student id is not provided"})
+        }
+
+        const enrolledCourses = await Enrollment.find()
+
+        const studentCourses = enrolledCourses.filter(course =>{
+            return course.studentId == id
+        })
+
+        const courseIdList = enrolledCourses[0].enrolledCourseList
+
+        const courseDetails = await Course.find({_id:{$in: courseIdList}})
+
+        return res.status(200).json({
+            message: "Success",
+            courseDetails
+        })
+
+        
+    } catch (error) {
+        return res.status(400).json({message: error.message})
+    }
+    
+  })
+
+
+  // Get details of all available courses 
+app.get("/all-courses", async(req, res) =>{
+
+    const availableCourses = await Course.find()
+    return res.status(200).json({message: "success", availableCourses})
+})

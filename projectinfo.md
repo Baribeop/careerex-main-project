@@ -5,17 +5,9 @@ Assigned
 
 Milestone 1: Authentication & Courses
 
-
-
-1.Create user roles: instructor and student.
-
-
-
-2.Instructors can create courses.
-
-
-
-3.Setup schemas: User, Course.
+1. Create user roles: instructor and student.
+2. Instructors can create courses.
+3. Setup schemas: User, Course.
 
 
 MILESTONE 2 - PROJECT 4: E-Learning Platform Backend (EduCore)
@@ -25,11 +17,19 @@ Assigned
 
 Milestone 2: Enrollment Logic
 
-1.Students can enroll in available courses.
+1. Students can enroll in available courses.
+2. Create Enrollment schema.
+3. Instructors can view enrolled students.
 
-2.Create Enrollment schema.
 
-3.Instructors can view enrolled students.
+5/26/2025
+MILESTONE 3 - PROJECT 4: E-Learning Platform Backend (EduCore)
+Assigned
+
+Milestone 3: Progress & Course Browsing
+1. Students can view their enrolled courses.
+2. Add course detail route.
+3. Optionally add course completion status (simple boolean flag).
 
 
 Backend where instructors manage courses and students enroll. 
